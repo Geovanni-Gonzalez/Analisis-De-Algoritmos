@@ -1,25 +1,8 @@
 import time
 import random
 
-# Función para generar una lista aleatoria de tamaño n
-def generar_lista_aleatoria(rango_min, rango_max):
-    # Inicializa una lista vacía
-    lista_aleatoria = []
-    
-    # Itera hasta que la lista tenga al menos tamaño_min elementos
-    for i in range(random.randint(100,1000)):
-        # Genera un número aleatorio dentro del rango especificado
-        numero_aleatorio = random.randint(rango_min, rango_max)
-        
-        # Agrega el número generado a la lista
-        lista_aleatoria.append(numero_aleatorio) 
-
-    return lista_aleatoria
-
-
-
 # Función para ordenar una lista usando el algoritmo Merge Sort
-def merge_sort(lista):
+def mergeSort(lista):
     if len(lista) > 1:
         # Calcular el punto medio de la lista
         medio = len(lista) // 2
@@ -27,8 +10,8 @@ def merge_sort(lista):
         mitad_izquierda = lista[:medio]
         mitad_derecha = lista[medio:]
         # Se aplica recursivamente la función merge_sort a cada mitad
-        merge_sort(mitad_izquierda)
-        merge_sort(mitad_derecha)
+        mergeSort(mitad_izquierda)
+        mergeSort(mitad_derecha)
         # Inicializar contadores para recorrer las dos mitades
         i = j = k = 0
         # Combinar las dos mitades en la lista original
@@ -60,17 +43,52 @@ def merge_sort(lista):
             # Incrementar los contadores
             j += 1
             k += 1
+"""
+#Aplicar para diferentes casos de prueba
 
-#Generar lista aleatoria
-lista = generar_lista_aleatoria(1, 1000)
+#Lista mejor caso
+lista_mejor_caso = [i for i in range(10000)]
+
+#Lista peor caso
+lista_peor_caso = [i for i in range(10000, 0, -1)]
+
+#Lista caso promedio
+lista_caso_promedio = [random.randint(0, 1000) for _ in range(10000)]
+
+
 
 #Tamaño de la lista
-print(f"Tamaño de la lista: {len(lista)}")
+print(f"Tamaño de la lista (mejor caso): {len(lista_mejor_caso)}")
 
-#Medir tiempo de ejecución
-inicio = time.time()
-merge_sort(lista)
-fin = time.time()
-tiempo_total = fin - inicio
+#Mejor caso
+start_time = time.time()
+mergeSort(lista_mejor_caso)
+end_time = time.time()
 
-print(f"Tiempo de ejecución del Merge Sort: {tiempo_total} segundos")
+
+print(f"Tiempo de ejecución (mejor caso): {end_time - start_time} segundos")
+
+
+#Tamaño de la lista
+print(f"Tamaño de la lista (peor caso): {len(lista_peor_caso)}")
+
+#Peor caso
+start_time = time.time()
+mergeSort(lista_peor_caso)
+end_time = time.time()
+
+
+print(f"Tiempo de ejecución (peor caso): {end_time - start_time} segundos")
+
+
+#Tamaño de la lista
+print(f"Tamaño de la lista (caso promedio): {len(lista_caso_promedio)}")
+
+#Caso promedio
+start_time = time.time()
+mergeSort(lista_caso_promedio)
+end_time = time.time()
+
+print(f"Tiempo de ejecución (caso promedio): {end_time - start_time} segundos")
+
+"""
