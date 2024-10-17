@@ -1,105 +1,111 @@
 import random
 
-# Funcion: ingresar_limite
-# Esta función pide al usuario ingresar el valor límite 'L', que será el tope máximo
-# para la suma de los subconjuntos generados.
+# Función: ingresar_limite
+# Esta función solicita al usuario que ingrese un valor límite 'L'.
+# Este límite se utiliza para determinar la suma máxima permitida de los subconjuntos generados.
 def ingresar_limite():
     L = int(input("Ingrese el valor límite L: "))
     return L
 
-# Funcion: generar_conjunto
+# Función: generar_conjunto
 # Esta función genera un conjunto de números aleatorios dentro de un rango.
 # Los valores por defecto son 10 números entre 1 y 50.
 def generar_conjunto(n=10, min_val=1, max_val=50):
-    return [random.randint(min_val, max_val) for i in range(n)]
+    # Usar un conjunto para garantizar que los números sean únicos
+    conjunto = set()
+    
+    while len(conjunto) < n:
+        numero = random.randint(min_val, max_val)
+        conjunto.add(numero)  # Agrega el número al conjunto (solo se agregará si no está ya presente)
 
-# Funcion: calcular_aptitud (fitness)
+    return list(conjunto)  # Convertir de nuevo a lista para el resto del programa
+# Función: calcular_aptitud (fitness)
 # Esta función calcula la aptitud de un subconjunto basado en la suma de sus elementos.
-# Si la suma es menor o igual al límite 'L', la aptitud será la suma.
-# Si la suma excede el límite, se retorna 0 para una mal aptitud.
+# Si la suma es menor o igual al límite 'L', se retorna la suma como aptitud.
+# Si la suma excede el límite, se retorna 0, indicando que la solución es inviable.
 def calcular_aptitud(subconjunto, L, conjunto):
-    suma = sum([conjunto[i] for i in range(len(conjunto)) if subconjunto[i] == 1])
+    suma = sum(conjunto[i] for i in range(len(conjunto)) if subconjunto[i] == 1)
     return suma if suma <= L else 0
 
-# Funcion: evaluar
-# Similar a la función de calcular aptitud, pero enfocada en validar si la suma del
-# subconjunto excede 'L'. Si lo excede, se retorna 0, de lo contrario se retorna la suma.
-def evaluar(subconjunto):
-    suma = sum([conjunto[i] for i in range(len(conjunto)) if subconjunto[i] == 1])
-    if suma > L:
-        return 0  
-    return suma
+# Función: evaluar
+# Esta función evalúa un subconjunto para determinar su aptitud.
+# Retorna la suma de los elementos del subconjunto si no excede el límite 'L', de lo contrario retorna 0.
+def evaluar(subconjunto, L, conjunto):
+    suma = sum(conjunto[i] for i in range(len(conjunto)) if subconjunto[i] == 1)
+    return suma if suma <= L else 0
 
-# Funcion: generar_poblacion
-# Genera una población inicial de subconjuntos aleatorios. Cada subconjunto
-# está representado como una lista de 0's y 1's, donde 1 indica que el elemento correspondiente
-# del conjunto original está presente en el subconjunto, y 0 indica que no lo está.
-# 1's posibles respuestas 0's poblacion descartada
-def generar_poblacion(tamano_poblacion):
-    return [[random.randint(0, 1) for i in range(len(conjunto))] for i in range(tamano_poblacion)]
+# Función: generar_poblacion
+# Esta función crea una población inicial de subconjuntos aleatorios.
+# Cada subconjunto está representado como una lista de 0's y 1's,
+# donde 1 indica que el elemento correspondiente del conjunto original está presente en el subconjunto.
+def generar_poblacion(tamano_poblacion, conjunto):
+    return [[random.randint(0, 1) for _ in range(len(conjunto))] for _ in range(tamano_poblacion)]
 
-# Funcion: cruzar
-# Realiza un cruce entre dos subconjuntos (padres). El cruce intercambia parte de los genes
-# (bits) de los padres para producir dos nuevos subconjuntos (hijos).
+# Función: cruzar
+# Esta función realiza un cruce entre dos subconjuntos (padres).
+# El cruce se lleva a cabo en un punto aleatorio, intercambiando partes de los padres para producir dos nuevos subconjuntos (hijos).
 def cruzar(padre1, padre2):
-    punto_cruce = random.randint(1, len(conjunto) - 1)
-    hijo1 = padre1[:punto_cruce] + padre2[punto_cruce:]
-    hijo2 = padre2[:punto_cruce] + padre1[punto_cruce:]
+    punto_cruce = random.randint(1, len(padre1) - 1)  # Seleccionar un punto de cruce aleatorio
+    hijo1 = padre1[:punto_cruce] + padre2[punto_cruce:]  # Crear el primer hijo
+    hijo2 = padre2[:punto_cruce] + padre1[punto_cruce:]  # Crear el segundo hijo
     return hijo1, hijo2
 
-# Funcion: mutar
-# Función que muta un subconjunto cambiando aleatoriamente algunos de sus genes de 0 a 1 o viceversa,
-# según la tasa de mutación dada. 
-# Ayuda a introducir diversidad en la población.
+# Función: mutar
+# Esta función muta un subconjunto, cambiando aleatoriamente algunos de sus genes de 0 a 1 o viceversa,
+# según la tasa de mutación especificada. Esto introduce diversidad en la población.
 def mutar(subconjunto, tasa_mutacion):
     for i in range(len(subconjunto)):
-        if random.random() < tasa_mutacion:
-            subconjunto[i] = 1 - subconjunto[i]  
+        if random.random() < tasa_mutacion:  # Verificar si se debe mutar el gen
+            subconjunto[i] = 1 - subconjunto[i]  # Cambiar el valor del gen
 
-# Funcion: genetica
-# Esta función implementa el proceso del algoritmo genético:
+# Función: genetica
+# Esta función implementa el algoritmo genético:
 # - Inicializa una población de subconjuntos aleatorios.
 # - A lo largo de las generaciones, selecciona subconjuntos, realiza cruces y mutaciones,
 #   y reemplaza la población con nuevas generaciones.
-# - En cada generación, se busca el mejor subconjunto en funcion de la suma de sus elementos
+# - En cada generación, se busca el mejor subconjunto en función de la suma de sus elementos
 #   sin exceder el límite 'L'.
-# Nota: La funcion max(), sirve para encontrar el valor maximo de una secuencia 
-# en este caso en la poblacion.
-def genetica(tamano_poblacion, num_generaciones, tasa_mutacion):
-    poblacion = generar_poblacion(tamano_poblacion)
-    mejor_subconjunto = max(poblacion, key=evaluar)  
-    
+def genetica(tamano_poblacion, num_generaciones, tasa_mutacion, L, conjunto):
+    poblacion = generar_poblacion(tamano_poblacion, conjunto)  # Generar la población inicial
+    mejor_subconjunto = max(poblacion, key=lambda x: evaluar(x, L, conjunto), default=None)
+
     for generacion in range(num_generaciones):
-        nueva_poblacion = []
-        
+        nueva_poblacion = []  # Inicializar la nueva población
+
+        # Crear nuevos hijos hasta alcanzar el tamaño de la población
         while len(nueva_poblacion) < tamano_poblacion:
-            padre1 = max(random.sample(poblacion, 3), key=evaluar)
-            padre2 = max(random.sample(poblacion, 3), key=evaluar)
-            
-            hijo1, hijo2 = cruzar(padre1, padre2)
-            
-            mutar(hijo1, tasa_mutacion)
-            mutar(hijo2, tasa_mutacion)
-            
-            nueva_poblacion.extend([hijo1, hijo2])
-        
-        poblacion = nueva_poblacion
-        
-        mejor_subconjunto_generacion = max(poblacion, key=evaluar)
-        
-        if evaluar(mejor_subconjunto_generacion) > evaluar(mejor_subconjunto):
+            padre1 = max(random.sample(poblacion, 3), key=lambda x: evaluar(x, L, conjunto))  # Seleccionar el mejor padre
+            padre2 = max(random.sample(poblacion, 3), key=lambda x: evaluar(x, L, conjunto))  # Seleccionar el segundo padre
+
+            hijo1, hijo2 = cruzar(padre1, padre2)  # Realizar el cruce
+
+            mutar(hijo1, tasa_mutacion)  # Mutar el primer hijo
+            mutar(hijo2, tasa_mutacion)  # Mutar el segundo hijo
+
+            nueva_poblacion.extend([hijo1, hijo2])  # Agregar los hijos a la nueva población
+
+        poblacion = nueva_poblacion  # Actualizar la población
+
+        mejor_subconjunto_generacion = max(poblacion, key=lambda x: evaluar(x, L, conjunto), default=None)  # Encontrar el mejor subconjunto de la nueva generación
+
+        # Actualizar el mejor subconjunto si se encuentra uno mejor
+        if mejor_subconjunto_generacion is not None and evaluar(mejor_subconjunto_generacion, L, conjunto) > evaluar(mejor_subconjunto, L, conjunto):
             mejor_subconjunto = mejor_subconjunto_generacion
-        
-        print(f"Generación {generacion + 1}: Mejor suma = {evaluar(mejor_subconjunto)} con subconjunto {mejor_subconjunto}")
-    
+
+        suma_mejor = evaluar(mejor_subconjunto, L, conjunto)
+        print(f"Generación {generacion + 1}: Mejor suma = {suma_mejor} con subconjunto {mejor_subconjunto}")
+
+    # Crear la solución final a partir del mejor subconjunto
     solucion_final = [conjunto[i] for i in range(len(conjunto)) if mejor_subconjunto[i] == 1]
     return solucion_final
 
-L = int(input("Ingrese el valor límite L: "))
+# Ejemplo de uso
+limite = ingresar_limite()  # Solicitar límite al usuario
+conjunto = generar_conjunto()  # Generar un conjunto aleatorio
+mejor_solucion = genetica(10, 50, 0.1, limite, conjunto)  # Ejecutar el algoritmo genético
 
-conjunto = [random.randint(1, 50) for i in range(10)]
-print(f"Conjunto generado: {conjunto}")
-
-mejor_solucion = genetica(10, 50, 0.1)
-
-print(f"La mejor solución es: {mejor_solucion}, con una suma de {sum(mejor_solucion)}")
+# Imprimir resultados finales
+print("Conjunto Generado:", conjunto)
+print("Mejor Solución Encontrada:", mejor_solucion)
+print("Suma de la Mejor Solución:", sum(mejor_solucion))
+print("Límite:", limite)
