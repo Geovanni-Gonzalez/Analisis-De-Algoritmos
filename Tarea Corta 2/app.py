@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import random
-from AlgoritmoGenetico import *  # Asegúrate de que este archivo contenga las funciones necesarias
+from AlgoritmoGenetico import *  
 
 app = Flask(__name__)
 
@@ -9,16 +9,26 @@ def index():
     mejor_solucion = []
     conjunto = []
     limite = 0
+    error = None
     
     if request.method == 'POST':
         try:
-            limite = int(request.form['limite'])  # Obtener el límite
-            conjunto = generar_conjunto(10, 1, 50)  # Generar un conjunto aleatorio
-            mejor_solucion = genetica(10, 50, 0.1, limite, conjunto)  # Ejecutar el algoritmo genético
+            # Obtener los valores ingresados por el usuario desde el formulario
+            limite = int(request.form['limite'])
+            tamano_poblacion = int(request.form['poblacion'])
+            num_generaciones = int(request.form['generaciones'])
+
+            # Generar el conjunto aleatorio
+            conjunto = generar_conjunto(10, 1, 50)
+
+            # Ejecutar el algoritmo genético con los valores del formulario
+            mejor_solucion = genetica(tamano_poblacion, num_generaciones, 0.1, limite, conjunto)
+
         except ValueError:
-            return render_template('index.html', error="El límite debe ser un número entero.")
+            error = "Todos los campos deben contener valores numéricos enteros válidos."
     
-    return render_template('index.html', mejor_solucion=mejor_solucion, conjunto=conjunto, limite=limite)
+    # Renderizar la plantilla con los resultados
+    return render_template('index.html', mejor_solucion=mejor_solucion, conjunto=conjunto, limite=limite, error=error)
 
 if __name__ == '__main__':
     app.run(debug=True)

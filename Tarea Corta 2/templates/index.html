@@ -24,17 +24,28 @@
                 <h1 class="text-center mb-4">Problema de Optimización</h1>
                 
                 <!-- Formulario para ingresar valores -->
-                <form action="/" method="POST">  <!-- Cambiado a la acción '/' -->
+                <form action="/" method="POST">
                     <div class="mb-3">
                         <label for="limite" class="form-label">Límite L (Suma máxima):</label>
                         <input type="number" class="form-control" id="limite" name="limite" placeholder="Ingresa el valor límite" required>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="poblacion" class="form-label">Tamaño de la población:</label>
+                        <input type="number" class="form-control" id="poblacion" name="poblacion" placeholder="Ingresa el tamaño de la población" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="generaciones" class="form-label">Número de generaciones:</label>
+                        <input type="number" class="form-control" id="generaciones" name="generaciones" placeholder="Ingresa el número de generaciones" required>
+                    </div>
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-block">Ejecutar Algoritmo</button>
                     </div>
                 </form>
 
-                {% if mejor_solucion %}  <!-- Comprobar si hay una mejor solución -->
+                {% if mejor_solucion %}
                     <h2 class="text-center mt-4">Resultados:</h2>
                     <p>Conjunto Generado: <strong>{{ conjunto }}</strong></p>
                     <p>Mejor Solución Encontrada: <strong>{{ mejor_solucion }}</strong></p>
@@ -42,14 +53,14 @@
                     <p>Límite: <strong>{{ limite }}</strong></p>
                 {% endif %}
 
+                {% if error %}
+                    <div class="alert alert-danger mt-3">{{ error }}</div>
+                {% endif %}
             </div>
         </div>
     </main>
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 </body>
 </html>
-
